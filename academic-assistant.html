@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meridian — Academic Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B2340; --navy-2:#242C52; --paper:#FAF8F3; --paper-2:#F1EDE2;
+  --gold:#B5842A; --gold-soft:#E9D9B4; --ink:#232323; --ink-soft:#6B6F76;
+  --line:#E1DACB; --green:#3F6B4F; --white:#fff;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{margin:0;font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);height:100%;}
+html,body{height:100%;}
+.app{display:flex;height:100vh;height:100dvh;overflow:hidden;}
+
+/* Sidebar */
+.side{width:250px;flex-shrink:0;background:var(--navy);color:var(--paper);display:flex;flex-direction:column;padding:22px 16px;}
+.brand{font-family:'Source Serif 4',serif;font-size:22px;font-weight:600;letter-spacing:.2px;padding:0 8px 22px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:18px;}
+.brand span{color:var(--gold-soft);}
+.nav{display:flex;flex-direction:column;gap:4px;}
+.nav button{all:unset;cursor:pointer;padding:11px 12px;border-radius:8px;font-size:14.5px;color:#D7D9E4;display:flex;align-items:center;gap:10px;transition:background .15s;}
+.nav button:hover{background:rgba(255,255,255,.06);}
+.nav button.active{background:var(--gold);color:var(--navy);font-weight:600;}
+.nav .ic{font-size:16px;width:18px;text-align:center;}
+.side-foot{margin-top:auto;padding:12px 8px 0;font-size:12.5px;color:#8D93AC;border-top:1px solid rgba(255,255,255,.12);}
+.side-foot b{color:var(--gold-soft);display:block;font-size:13px;margin-bottom:2px;}
+
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.view{flex:1;display:none;flex-direction:column;min-height:0;}
+.view.active{display:flex;}
+.topbar{padding:18px 28px;border-bottom:1px solid var(--line);background:var(--white);}
+.topbar h1{font-family:'Source Serif 4',serif;font-size:21px;margin:0 0 3px;font-weight:600;}
+.topbar p{margin:0;color:var(--ink-soft);font-size:13.5px;}
+
+/* Chat */
+.chat-log{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:16px;}
+.msg{max-width:640px;padding:12px 16px;border-radius:12px;font-size:14.5px;line-height:1.55;}
+.msg.bot{background:var(--white);border:1px solid var(--line);align-self:flex-start;border-top-left-radius:3px;}
+.msg.user{background:var(--navy);color:var(--paper);align-self:flex-end;border-top-right-radius:3px;}
+.msg .src{margin-top:9px;padding-top:8px;border-top:1px dashed var(--line);font-size:12px;color:var(--ink-soft);}
+.msg .src b{color:var(--gold);}
+.chips{display:flex;gap:8px;flex-wrap:wrap;padding:0 28px 14px;}
+.chip{border:1px solid var(--line);background:var(--white);padding:7px 13px;border-radius:20px;font-size:13px;cursor:pointer;color:var(--ink);}
+.chip:hover{border-color:var(--gold);color:var(--gold);}
+.composer{display:flex;gap:10px;padding:16px 28px 20px;border-top:1px solid var(--line);background:var(--white);}
+.composer input{flex:1;border:1px solid var(--line);border-radius:9px;padding:12px 14px;font-size:14.5px;font-family:inherit;}
+.composer input:focus{outline:2px solid var(--gold);outline-offset:1px;}
+.composer button{border:none;background:var(--navy);color:var(--paper);padding:0 20px;border-radius:9px;font-weight:600;cursor:pointer;font-size:14px;}
+.composer button:hover{background:var(--navy-2);}
+.typing{align-self:flex-start;color:var(--ink-soft);font-size:13px;padding:0 28px;}
+
+/* Documents */
+.pad{padding:22px 28px;overflow-y:auto;}
+.searchbar{display:flex;gap:10px;margin-bottom:18px;}
+.searchbar input{flex:1;border:1px solid var(--line);border-radius:9px;padding:11px 14px;font-size:14px;font-family:inherit;}
+.doclist{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+.card{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:16px;}
+.card h3{margin:0 0 6px;font-size:15px;font-family:'Source Serif 4',serif;}
+.tag{display:inline-block;font-size:11.5px;background:var(--paper-2);color:var(--ink-soft);padding:3px 9px;border-radius:20px;margin-bottom:8px;}
+.card p{margin:0;font-size:13px;color:var(--ink-soft);line-height:1.5;}
+.card a{display:inline-block;margin-top:10px;font-size:13px;color:var(--gold);text-decoration:none;font-weight:600;}
+
+/* Courses */
+.course-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+.course{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:18px;border-left:4px solid var(--gold);}
+.course h3{margin:0 0 4px;font-family:'Source Serif 4',serif;font-size:16px;}
+.course .code{color:var(--gold);font-size:12.5px;font-weight:600;}
+.course dl{margin:12px 0 0;display:grid;grid-template-columns:auto 1fr;gap:5px 10px;font-size:13px;}
+.course dt{color:var(--ink-soft);}
+.course dd{margin:0;}
+
+/* Study plan */
+.plan-form{background:var(--white);border:1px solid var(--line);border-radius:10px;padding:20px;margin-bottom:20px;}
+.plan-form .row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;}
+.field{flex:1;min-width:180px;}
+.field label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:5px;}
+.field select,.field input{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 10px;font-family:inherit;font-size:14px;}
+.gen-btn{border:none;background:var(--gold);color:var(--navy);font-weight:600;padding:11px 20px;border-radius:8px;cursor:pointer;font-size:14px;}
+.gen-btn:hover{background:#a3771f;color:var(--white);}
+.plan-table{width:100%;border-collapse:collapse;background:var(--white);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.plan-table th{background:var(--paper-2);text-align:left;font-size:12.5px;color:var(--ink-soft);padding:10px 12px;font-weight:600;}
+.plan-table td{padding:11px 12px;border-top:1px solid var(--line);font-size:13.5px;vertical-align:top;}
+.plan-table tr td:first-child{font-weight:600;color:var(--navy);white-space:nowrap;}
+.empty{color:var(--ink-soft);font-size:14px;padding:30px;text-align:center;border:1px dashed var(--line);border-radius:10px;background:var(--white);}
+
+@media (max-width:760px){
+  .side{position:fixed;left:0;top:0;bottom:0;z-index:20;transform:translateX(-100%);transition:transform .2s;}
+  .side.open{transform:translateX(0);}
+  .menu-btn{display:inline-flex!important;}
+  .plan-form .row{flex-direction:column;}
+}
+.menu-btn{display:none;border:none;background:none;font-size:20px;cursor:pointer;margin-right:10px;color:var(--navy);}
+.tb-flex{display:flex;align-items:center;}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="side" id="side">
+    <div class="brand">Meridian<span>.</span></div>
+    <div class="nav">
+      <button class="active" data-view="chat"><span class="ic">💬</span>Ask Meridian</button>
+      <button data-view="docs"><span class="ic">📄</span>Document Search</button>
+      <button data-view="courses"><span class="ic">🎓</span>Course Info</button>
+      <button data-view="plan"><span class="ic">🗓️</span>Study Plan</button>
+    </div>
+    <div class="side-foot"><b>Riverbend College</b>Academic Assistant · RAG + LangGraph</div>
+  </nav>
+
+  <div class="main">
+    <!-- CHAT -->
+    <section class="view active" id="view-chat">
+      <div class="topbar tb-flex"><button class="menu-btn" onclick="document.getElementById('side').classList.toggle('open')">☰</button>
+        <div><h1>Ask Meridian</h1><p>Answers grounded in your college's handbooks, syllabi, and policies.</p></div>
+      </div>
+      <div class="chat-log" id="chatLog"></div>
+      <div class="chips" id="chips">
+        <div class="chip" onclick="ask('What is the last date to drop a course this semester?')">Course drop deadline?</div>
+        <div class="chip" onclick="ask('How do I apply for a scholarship?')">Scholarship process</div>
+        <div class="chip" onclick="ask('Make me a study plan for my midterms')">Build a study plan</div>
+        <div class="chip" onclick="ask('What are the library hours during finals week?')">Library hours</div>
+      </div>
+      <div class="composer">
+        <input id="chatInput" placeholder="Ask about courses, policies, deadlines, or your schedule…" onkeydown="if(event.key==='Enter')sendMsg()">
+        <button onclick="sendMsg()">Send</button>
+      </div>
+    </section>
+
+    <!-- DOCS -->
+    <section class="view" id="view-docs">
+      <div class="topbar"><h1>Document Search</h1><p>Search across handbooks, syllabi, circulars, and policy PDFs indexed by the RAG pipeline.</p></div>
+      <div class="pad">
+        <div class="searchbar">
+          <input id="docQuery" placeholder="Search college documents… e.g. 'attendance policy'" onkeydown="if(event.key==='Enter')searchDocs()">
+          <button class="gen-btn" onclick="searchDocs()">Search</button>
+        </div>
+        <div class="doclist" id="docList"></div>
+      </div>
+    </section>
+
+    <!-- COURSES -->
+    <section class="view" id="view-courses">
+      <div class="topbar"><h1>Course Info</h1><p>Live details pulled from the academic database — instructors, credits, and prerequisites.</p></div>
+      <div class="pad"><div class="course-grid" id="courseGrid"></div></div>
+    </section>
+
+    <!-- PLAN -->
+    <section class="view" id="view-plan">
+      <div class="topbar"><h1>Study Plan Builder</h1><p>A multi-step LangGraph agent drafts a schedule, then adjusts it from your feedback.</p></div>
+      <div class="pad">
+        <div class="plan-form">
+          <div class="row">
+            <div class="field"><label>Course / exam</label>
+              <select id="pCourse"><option>CS 301 – Data Structures</option><option>MATH 210 – Linear Algebra</option><option>PHY 150 – Mechanics</option><option>ECON 220 – Microeconomics</option></select>
+            </div>
+            <div class="field"><label>Days until exam</label><input id="pDays" type="number" value="10" min="2" max="30"></div>
+            <div class="field"><label>Hours available / day</label><input id="pHours" type="number" value="2" min="1" max="6"></div>
+          </div>
+          <button class="gen-btn" onclick="genPlan()">Generate study plan</button>
+        </div>
+        <div id="planOut"><div class="empty">Set your course and time budget, then generate a plan — Meridian will break the topics into a day-by-day schedule.</div></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+/* ---------- nav ---------- */
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+b.dataset.view).classList.add('active');
+  document.getElementById('side').classList.remove('open');
+}));
+
+/* ---------- mock knowledge base ---------- */
+const KB = [
+  {t:"Academic Handbook 2026-27", tag:"Handbook", d:"Covers grading policy, attendance rules, and academic integrity standards.", ans:"a student may drop a course up to 20 days after the semester start; late drops need Dean approval"},
+  {t:"Course Drop & Withdrawal Circular", tag:"Circular", d:"Deadlines and forms for adding, dropping, or withdrawing from courses.", ans:"the last date to drop a course without penalty is Week 4, Friday; withdrawals after that appear as 'W' on the transcript"},
+  {t:"Scholarship & Financial Aid Guide", tag:"Guide", d:"Eligibility criteria and the application workflow for merit and need-based scholarships.", ans:"scholarship applications open in Week 2 of each semester through the student portal, requiring your latest transcript and a faculty recommendation"},
+  {t:"Library Services Manual", tag:"Manual", d:"Operating hours, borrowing limits, and finals-week extended access.", ans:"the library extends hours to 7am–1am during finals week, with 24-hour access in the reading annex"},
+  {t:"Examination & Grading Policy", tag:"Policy", d:"Rules for midterms, finals, re-evaluation, and grade appeals.", ans:"grade appeals must be filed within 10 working days of result publication, via the registrar's office"},
+];
+
+function citeFor(text){
+  const t=text.toLowerCase();
+  return KB.find(k=> t.includes('drop') && k.t.includes('Drop')) ||
+         KB.find(k=> t.includes('scholarship') && k.t.includes('Scholarship')) ||
+         KB.find(k=> t.includes('library') && k.t.includes('Library')) ||
+         KB.find(k=> (t.includes('grade')||t.includes('appeal')) && k.t.includes('Grading')) ||
+         KB[0];
+}
+
+/* ---------- chat ---------- */
+const log = document.getElementById('chatLog');
+function addMsg(role,html){
+  const d=document.createElement('div'); d.className='msg '+role; d.innerHTML=html;
+  log.appendChild(d); log.scrollTop=log.scrollHeight; return d;
+}
+addMsg('bot',"Hi, I'm Meridian — your college's academic assistant. Ask me about courses, policies, deadlines, or say <i>“build me a study plan”</i> and I'll walk you through it.");
+
+function sendMsg(){
+  const inp=document.getElementById('chatInput'); const v=inp.value.trim();
+  if(!v) return; inp.value=''; ask(v);
+}
+function ask(text){
+  addMsg('user', escapeHtml(text));
+  const typing=document.createElement('div'); typing.className='typing'; typing.id='typing';
+  typing.textContent='Meridian is retrieving relevant documents…';
+  log.appendChild(typing); log.scrollTop=log.scrollHeight;
+  setTimeout(()=>{
+    typing.remove();
+    const low=text.toLowerCase();
+    if(low.includes('study plan')||low.includes('plan for')){
+      addMsg('bot',"I can draft that for you — head to the <b>Study Plan</b> tab, pick your course and how many days you have, and I'll generate a day-by-day schedule you can adjust.");
+      return;
+    }
+    const src=citeFor(low);
+    addMsg('bot', `Based on college records, ${src.ans}.<div class="src"><b>Source:</b> ${src.t} (${src.tag})</div>`);
+  }, 850);
+}
+function escapeHtml(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+/* ---------- docs ---------- */
+function renderDocs(list){
+  document.getElementById('docList').innerHTML = list.map(k=>`
+    <div class="card"><span class="tag">${k.tag}</span><h3>${k.t}</h3><p>${k.d}</p><a href="#" onclick="return false;">Open document →</a></div>
+  `).join('') || '<div class="empty">No documents match that search.</div>';
+}
+renderDocs(KB);
+function searchDocs(){
+  const q=document.getElementById('docQuery').value.trim().toLowerCase();
+  if(!q){renderDocs(KB);return;}
+  renderDocs(KB.filter(k=>(k.t+k.d+k.tag).toLowerCase().includes(q)));
+}
+
+/* ---------- courses ---------- */
+const COURSES=[
+  {code:"CS 301",name:"Data Structures & Algorithms",instr:"Dr. A. Menon",credits:4,pre:"CS 201",sched:"Mon/Wed/Fri 9:00–10:00"},
+  {code:"MATH 210",name:"Linear Algebra",instr:"Dr. S. Iyer",credits:3,pre:"MATH 110",sched:"Tue/Thu 11:00–12:30"},
+  {code:"PHY 150",name:"Classical Mechanics",instr:"Dr. R. Kulkarni",credits:3,pre:"None",sched:"Mon/Wed 2:00–3:30"},
+  {code:"ECON 220",name:"Microeconomics",instr:"Dr. P. Shah",credits:3,pre:"ECON 110",sched:"Tue/Thu 9:30–11:00"},
+];
+document.getElementById('courseGrid').innerHTML = COURSES.map(c=>`
+  <div class="course"><div class="code">${c.code}</div><h3>${c.name}</h3>
+  <dl><dt>Instructor</dt><dd>${c.instr}</dd><dt>Credits</dt><dd>${c.credits}</dd><dt>Prerequisite</dt><dd>${c.pre}</dd><dt>Schedule</dt><dd>${c.sched}</dd></dl></div>
+`).join('');
+
+/* ---------- study plan ---------- */
+const TOPICS={
+  "CS 301 – Data Structures":["Arrays & linked lists","Stacks & queues","Trees & traversals","Graphs (BFS/DFS)","Sorting algorithms","Hashing","Dynamic programming","Practice problem set","Timed mock test","Review weak areas"],
+  "MATH 210 – Linear Algebra":["Vector spaces","Matrix operations","Determinants","Eigenvalues/eigenvectors","Linear transformations","Diagonalization","Practice problems","Mock test","Review & formula sheet"],
+  "PHY 150 – Mechanics":["Kinematics","Newton's laws","Work & energy","Momentum","Rotational motion","Oscillations","Numerical problems","Mock test","Review"],
+  "ECON 220 – Microeconomics":["Demand & supply","Elasticity","Consumer theory","Production & cost","Market structures","Game theory basics","Case studies","Mock test","Review"]
+};
+function genPlan(){
+  const course=document.getElementById('pCourse').value;
+  const days=Math.max(2,parseInt(document.getElementById('pDays').value||10));
+  const hours=Math.max(1,parseInt(document.getElementById('pHours').value||2));
+  const topics=TOPICS[course]||["Core concepts","Practice problems","Review"];
+  let rows='', day=1, ti=0;
+  const perDay = Math.max(1, Math.round(topics.length/days));
+  while(day<=days){
+    const chunk = topics.slice(ti, ti+perDay);
+    ti+=perDay;
+    const label = chunk.length? chunk.join(', ') : (day===days? 'Final review + rest': 'Buffer / catch-up');
+    rows += `<tr><td>Day ${day}</td><td>${label}</td><td>${hours} hrs</td></tr>`;
+    day++;
+  }
+  document.getElementById('planOut').innerHTML = `
+    <table class="plan-table"><thead><tr><th>Day</th><th>Focus</th><th>Time</th></tr></thead><tbody>${rows}</tbody></table>
+    <p style="color:var(--ink-soft);font-size:13px;margin-top:10px;">Plan for <b>${course}</b> · ${days} days · ${hours} hrs/day. Ask Meridian in chat to "swap Day 3 for lighter topics" and it will regenerate this.</p>`;
+}
+</script>
+</body>
+</html>
