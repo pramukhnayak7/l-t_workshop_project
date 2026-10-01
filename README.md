@@ -1,4 +1,6 @@
-# Campus Compass
+# l-t_workshop_project
+
+## Campus Compass
 
 Campus Compass is a student-facing academic assistant built with Streamlit, LangChain, and LangGraph. It retrieves college guidance from uploaded documents, maintains short conversational context for follow-up questions, generates editable study schedules, and compares general-model answers with document-grounded responses.
 
